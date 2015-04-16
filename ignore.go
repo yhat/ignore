@@ -11,9 +11,9 @@ type Ignorer struct {
 	ignorers []ignorer
 }
 
-// Should the file be ignored? If the fullpath is a directory, it should
-// contain a trailing slash.
-func (i *Ignorer) Ignore(fullpath string) bool {
+// Should the file be ignored? If the fullpath is a directory, it must contain
+// a trailing slash. The fullpath use a OS specific file separator.
+func (i Ignorer) Ignore(fullpath string) bool {
 
 	fullpath = filepath.ToSlash(fullpath) // for windows
 
@@ -22,6 +22,15 @@ func (i *Ignorer) Ignore(fullpath string) bool {
 		f.ignored = ig.Ignore(f)
 	}
 	return f.ignored
+}
+
+// Append an Ignorer to another.
+func (i Ignorer) Append(ignorers ...Ignorer) Ignorer {
+	islice := i.ignorers
+	for _, ignorer := range ignorers {
+		islice = append(islice, ignorer.ignorers...)
+	}
+	return Ignorer{islice}
 }
 
 type file struct {
