@@ -12,7 +12,7 @@ type Ignorer struct {
 }
 
 // Should the file be ignored? If the fullpath is a directory, it must contain
-// a trailing slash. The fullpath use a OS specific file separator.
+// a trailing slash. Use of a OS specific file separator is okay.
 func (i Ignorer) Ignore(fullpath string) bool {
 
 	fullpath = filepath.ToSlash(fullpath) // for windows
@@ -97,8 +97,13 @@ func Parse(ignore string) Ignorer {
 }
 
 // Parse an ignore file relative to it's basepath. For instance the file
-// 'foo/.ignore' would have a basepath of 'foo/'
+// 'foo/.ignore' would have a basepath of 'foo/'. Use of a OS specific
+// separator is okay.
 func ParseRel(ignore, basepath string) Ignorer {
+	basepath = filepath.ToSlash(basepath)
+	if basepath == "." {
+		basepath = ""
+	}
 	lines := strings.Split(ignore, "\n")
 	ignorers := []ignorer{}
 	for _, line := range lines {
